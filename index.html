@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>From Cylor to Mèn Mén 💕</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Montserrat:wght@300;400;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --sans: 'Montserrat', sans-serif;
+      --serif: 'Playfair Display', serif;
+      --script: 'Dancing Script', cursive;
+      --text: #ffffff;
+      --pink: #ff69b4;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 30%, #3d0724 0%, #15000c 60%, #080005 100%);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Màn hình nút bấm mở quà ban đầu */
+    #start-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 0, 7, 0.95);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.2rem;
+      transition: opacity 0.8s ease, visibility 0.8s;
+    }
+
+    #start-overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .start-btn {
+      padding: 1rem 2.5rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(135deg, #ff2a8d, #b80058);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 99px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(255, 42, 141, 0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+      font-family: var(--sans);
+      animation: pulseBtn 1.6s infinite;
+    }
+
+    .start-btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 12px 30px rgba(255, 42, 141, 0.6);
+    }
+
+    @keyframes pulseBtn {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+    }
+
+    /* Nút phụ chọn file nhạc dự phòng */
+    .music-picker-label {
+      font-size: 0.85rem;
+      color: #ffb6c1;
+      cursor: pointer;
+      text-decoration: underline;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+
+    .music-picker-label:hover {
+      opacity: 1;
+    }
+
+    #musicFileInput {
+      display: none;
+    }
+
+    /* Vòng sáng nền mờ ảo */
+    .g1 {
+      position: fixed;
+      left: -10vmax;
+      top: -10vmax;
+      width: 50vmax;
+      height: 50vmax;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ff2a8d 0%, transparent 70%);
+      opacity: 0.35;
+      filter: blur(60px);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .g2 {
+      position: fixed;
+      right: -15vmax;
+      bottom: -15vmax;
+      width: 55vmax;
+      height: 55vmax;
+      border-radius: 50%;
+      background: radial-gradient(circle, #b80058 0%, transparent 70%);
+      opacity: 0.3;
+      filter: blur(70px);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Sao lấp lánh */
+    .star {
+      position: fixed;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: #fff;
+      animation: tw 3s infinite alternate;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    @keyframes tw {
+      0% { opacity: 0.2; }
+      100% { opacity: 1; box-shadow: 0 0 8px #fff; }
+    }
+
+    /* Ký tự bay nền */
+    .fly {
+      position: fixed;
+      pointer-events: none;
+      font-family: var(--serif);
+      font-weight: 800;
+      color: rgba(255, 182, 193, 0.45);
+      z-index: 2;
+      will-change: transform;
+      transition: opacity 1s;
+    }
+
+    /* Trái tim & icon bay */
+    .heart {
+      position: fixed;
+      bottom: -40px;
+      pointer-events: none;
+      z-index: 3;
+      animation: floatUp 5s linear forwards;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(0) scale(0.6) rotate(0deg); opacity: 0.8; }
+      100% { transform: translateY(-110vh) scale(1.2) rotate(30deg); opacity: 0; }
+    }
+
+    /* Sân khấu giải mã chữ lúc đầu */
+    #stage {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      transition: 1s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 5;
+    }
+
+    #stage.hide {
+      opacity: 0;
+      transform: scale(0.9);
+      pointer-events: none;
+    }
+
+    .line {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      font-family: var(--serif);
+      font-weight: 900;
+      text-align: center;
+      max-width: 92vw;
+    }
+
+    .l1 {
+      font-size: clamp(1.6rem, 4vw, 3.5rem);
+      color: #fff;
+      letter-spacing: 2px;
+      text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+    }
+
+    .l2 {
+      font-size: clamp(1.6rem, 4.2vw, 3.8rem);
+      color: var(--pink);
+      letter-spacing: 2px;
+      text-shadow: 0 0 25px rgba(255, 105, 180, 0.8);
+      margin-top: 5px;
+    }
+
+    .slot {
+      display: inline-block;
+      opacity: 0;
+      min-width: 0.2em;
+    }
+
+    .slot.sp { min-width: 0.35em; }
+
+    .slot.ok {
+      opacity: 1;
+      animation: pop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.4); filter: brightness(2.5); }
+      100% { transform: scale(1); filter: brightness(1); }
+    }
+
+    #hint {
+      font-family: var(--script);
+      font-size: clamp(1.4rem, 2.8vw, 2.2rem);
+      color: #ffd6e8;
+      text-align: center;
+      margin-top: 1.5rem;
+      animation: pulse 1.5s infinite;
+      text-shadow: 0 0 10px rgba(255, 192, 203, 0.6);
+      transition: opacity 0.5s;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.7; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+
+    /* Khung thiệp chúc mừng */
+    #card {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+      pointer-events: none;
+      opacity: 0;
+      overflow-y: auto;
+      z-index: 10;
+      transition: 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #card.show {
+      pointer-events: auto;
+      opacity: 1;
+    }
+
+    .box {
+      position: relative;
+      max-width: 530px;
+      width: 100%;
+      margin: auto;
+      padding: 2.2rem 2rem;
+      border-radius: 28px;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.05) 100%);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      text-align: center;
+      transform: scale(0.8) translateY(30px);
+      transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+
+    #card.show .box {
+      transform: scale(1) translateY(0);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.35rem 1.2rem;
+      border-radius: 99px;
+      background: rgba(255, 105, 180, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 1.2rem;
+    }
+
+    .subtitle {
+      font-family: var(--script);
+      font-size: 1.8rem;
+      color: #ff94c2;
+      margin-bottom: 0.2rem;
+    }
+
+    .big {
+      font-family: var(--serif);
+      font-size: clamp(1.7rem, 3.4vw, 2.3rem);
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
+      letter-spacing: 1px;
+    }
+
+    .sub-icon {
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+      display: inline-block;
+      animation: beat 1.2s infinite;
+    }
+
+    @keyframes beat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.25); }
+    }
+
+    /* Lời chúc gõ từng chữ */
+    .msg {
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: #ffeef6;
+      margin-bottom: 2rem;
+      font-weight: 400;
+      min-height: 5.2em;
+    }
+
+    .typing-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background-color: #ff94c2;
+      vertical-align: middle;
+      margin-left: 2px;
+      animation: blink 0.8s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.9rem;
+      text-align: left;
+    }
+
+    .item {
+      padding: 1rem;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      transition: transform 0.3s ease, background 0.3s ease;
+    }
+
+    .item:hover {
+      transform: translateY(-3px);
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .item-icon { font-size: 1.4rem; margin-bottom: 0.4rem; }
+    .item-title { font-size: 0.9rem; font-weight: 700; color: #fff; margin-bottom: 0.2rem; }
+    .item-desc { font-size: 0.75rem; color: #ffcbe3; line-height: 1.4; }
+
+    /* Lời bài hát chạy ở cuối */
+    .lyrics-bottom {
+      position: fixed;
+      bottom: 25px;
+      width: 100%;
+      text-align: center;
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: clamp(1rem, 2vw, 1.35rem);
+      color: #fff;
+      text-shadow: 0 0 10px rgba(255, 105, 180, 0.8), 0 0 20px rgba(0,0,0,0.8);
+      z-index: 20;
+      pointer-events: none;
+      letter-spacing: 1px;
+      transition: opacity 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Trỏ sẵn tới file nhạc "cho chut thoi.mp3" -->
+  <audio id="bgMusic" src="cho chut thoi.mp3" preload="auto" loop></audio>
+
+  <!-- Màn hình mở quà -->
+  <div id="start-overlay">
+    <button class="start-btn" id="startBtn">✨ Mở Quà 20/10 ✨</button>
+   
+    <input type="file" id="musicFileInput" accept="audio/*">
+  </div>
+
+  <div class="g1"></div>
+  <div class="g2"></div>
+
+  <div id="stage">
+    <div class="line l1" id="line1">CHÚC MỪNG 20/10</div>
+    <div class="line l2" id="line2"></div>
+    <div id="hint">Cho chut thoiii... ✨</div>
+  </div>
+
+  <div id="card">
+    <div class="box">
+      <div class="badge">✨ 20 · 10 NGÀY PHỤ NỮ VIỆT NAM ✨</div>
+      <div class="subtitle">Gửi riêng cho</div>
+      <div class="big">Các công chúa Mèn Mén</div>
+      <div class="sub-icon">👑 🌸 💖</div>
+      
+      <!-- Lời chúc tự gõ từng chữ -->
+      <div class="msg" id="msgBox"><span id="typewriterText"></span><span class="typing-cursor" id="cursor"></span></div>
+      
+      <div class="grid">
+        <div class="item">
+          <div class="item-icon">🌸</div>
+          <div class="item-title">Luôn xinh đẹp</div>
+          <div class="item-desc">Rạng rỡ trong từng khoảnh khắc</div>
+        </div>
+        <div class="item">
+          <div class="item-icon">✨</div>
+          <div class="item-title">Thật hạnh phúc</div>
+          <div class="item-desc">Mỗi ngày đều tràn ngập niềm vui</div>
+        </div>
+        <div class="item">
+          <div class="item-icon">🍀</div>
+          <div class="item-title">Bình an & May mắn</div>
+          <div class="item-desc">Vạn sự hanh thông như ý</div>
+        </div>
+        <div class="item">
+          <div class="item-icon">💕</div>
+          <div class="item-title">Được yêu thương</div>
+          <div class="item-desc">Luôn được trân trọng thật nhiều</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phụ đề bài hát chạy dưới đáy -->
+  <div class="lyrics-bottom" id="subTitle"></div>
+
+  <script>
+    // 1. Sao nền lấp lánh
+    for (let i = 0; i < 45; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      star.style.left = Math.random() * 100 + 'vw';
+      star.style.top = Math.random() * 100 + 'vh';
+      star.style.animationDelay = (Math.random() * 3) + 's';
+      star.style.transform = `scale(${Math.random() * 1.5 + 0.5})`;
+      document.body.appendChild(star);
+    }
+
+    // 2. Ký tự bay nền (Cập nhật cho CAC CONG CHUA MEN MEN)
+    const flyLetters = 'CACCONGCHUAMENMENLOVE👑🌸✨💕🌷';
+    for (let i = 0; i < 35; i++) {
+      const fly = document.createElement('div');
+      fly.className = 'fly';
+      fly.innerText = flyLetters[Math.floor(Math.random() * flyLetters.length)];
+      fly.style.left = Math.random() * 95 + 'vw';
+      fly.style.top = Math.random() * 95 + 'vh';
+      fly.style.fontSize = (Math.random() * 2.5 + 1.2) + 'rem';
+      fly.style.transform = `rotate(${Math.random() * 360}deg)`;
+      fly.style.opacity = (Math.random() * 0.4 + 0.1).toString();
+      document.body.appendChild(fly);
+    }
+
+    // 3. Tim & vương miện bay
+    setInterval(() => {
+      const heart = document.createElement('div');
+      heart.className = 'heart';
+      const hearts = ['👑', '🌸', '✨', '💕', '🌷', '💖', '💐'];
+      heart.innerText = hearts[Math.floor(Math.random() * hearts.length)];
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.fontSize = (Math.random() * 1.5 + 1) + 'rem';
+      heart.style.animationDuration = (Math.random() * 2 + 4) + 's';
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 6000);
+    }, 450);
+
+    // 4. Phát nhạc & ẩn màn hình chờ
+    const startBtn = document.getElementById('startBtn');
+    const bgMusic = document.getElementById('bgMusic');
+    const startOverlay = document.getElementById('start-overlay');
+    const musicFileInput = document.getElementById('musicFileInput');
+    const musicLabel = document.getElementById('musicLabel');
+
+    // Nạp file nếu để khác thư mục
+    musicFileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        bgMusic.src = URL.createObjectURL(file);
+        musicLabel.innerText = "✅ Đã nạp nhạc: " + file.name;
+        musicLabel.style.color = "#80ffdb";
+      }
+    });
+
+    startBtn.addEventListener('click', () => {
+      bgMusic.play().catch(e => console.log("Không tìm thấy file nhạc cùng thư mục:", e));
+      startOverlay.classList.add('hidden');
+      startDecodingAnimation();
+    });
+
+    // 5. Hiệu ứng gõ từng chữ lời chúc
+    function typeWriterMessage() {
+      const message = "Nhân ngày 20/10, chúc các công chúa Mèn Mén luôn luôn xinh đẹp, rạng ngời, ngọt ngào và tràn đầy năng lượng tích cực! Chúc các con có một ngày 20/10 thật nhiều niềm vui, luôn nhận được sự nâng niu, yêu thương và ngập tràn hạnh phúc mỗi ngày! 🌷✨👑";
+      const targetElement = document.getElementById('typewriterText');
+      const cursor = document.getElementById('cursor');
+      let i = 0;
+      targetElement.textContent = "";
+
+      function type() {
+        if (i < message.length) {
+          targetElement.textContent += message.charAt(i);
+          i++;
+          setTimeout(type, 40);
+        } else {
+          setTimeout(() => {
+            cursor.style.display = 'none';
+          }, 2000);
+        }
+      }
+      type();
+    }
+
+    // 6. Hoạt ảnh giải mã chữ "CÁC CÔNG CHÚA MÈN MÉN"
+    function startDecodingAnimation() {
+      const targetText = "CÁC CÔNG CHÚA MÈN MÉN";
+      const line2 = document.getElementById('line2');
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+
+      targetText.split('').forEach((char) => {
+        const span = document.createElement('span');
+        span.className = 'slot' + (char === ' ' ? ' sp' : '');
+        span.innerText = char === ' ' ? ' ' : chars[Math.floor(Math.random() * chars.length)];
+        line2.appendChild(span);
+      });
+
+      const slots = document.querySelectorAll('.slot');
+      let solvedCount = 0;
+
+      slots.forEach((slot, index) => {
+        if (targetText[index] === ' ') {
+          slot.classList.add('ok');
+          solvedCount++;
+          return;
+        }
+        let interval = setInterval(() => {
+          slot.innerText = chars[Math.floor(Math.random() * chars.length)];
+        }, 70);
+
+        setTimeout(() => {
+          clearInterval(interval);
+          slot.innerText = targetText[index];
+          slot.classList.add('ok');
+          solvedCount++;
+
+          if (solvedCount === targetText.length) {
+            document.getElementById('hint').innerText = "Giải mã thành công 💕";
+            setTimeout(() => {
+              document.getElementById('stage').classList.add('hide');
+              document.getElementById('card').classList.add('show');
+              setTimeout(typeWriterMessage, 800);
+            }, 1800);
+          }
+        }, 800 + index * 160);
+      });
+
+      // Lời bài hát chạy ở cuối màn hình
+      const lyrics = [
+        { t: 500, text: '"Chờ anh chút thôi khi mùa đông vừa sang..."' },
+        { t: 6000, text: '"Chờ chút thôi rồi anh sẽ tìm tới ✨"' },
+        { t: 10500, text: '"Chờ anh chút thôi đã phiền em phải đợi..."' },
+        { t: 15000, text: '"Có anh ở đây rồi, vẫn gần em thôi dù xa cách khung trời 💕"' }
+      ];
+
+      lyrics.forEach(item => {
+        setTimeout(() => {
+          const sub = document.getElementById('subTitle');
+          sub.style.opacity = 0;
+          setTimeout(() => {
+            sub.innerText = item.text;
+            sub.style.opacity = 1;
+          }, 300);
+        }, item.t);
+      });
+    }
+  </script>
+</body>
+</html>
